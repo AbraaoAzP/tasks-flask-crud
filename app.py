@@ -1,21 +1,26 @@
-from flask import Flask
-
-# Sempre que executarmos de forma manual, o __name__ == "__main__", com isso sabemos que ela não está sindo implantada ou importada por outro arquivo.
+from flask import Flask, request, jsonify
+from models.task import Task
 app = Flask(__name__)
 
-# Criando uma rota:
-@app.route("/") # ("/") -> Rota inicial.
-# Criando o que será executado a partir da rota:
-def hello_world():
-    return "Hello, world!"
+# CRUD
+# Create, Read, Update and Delete.
 
-@app.route("/about")
-def about():
-    return "Página sobre."
+tasks = [] 
+task_id_control = 1
 
-# Faz uma verificação para garantir que só vai ser possível subir o servidor se estivermos fazendo de forma manual, visto que quando fazemos de forma manual, o __name__ recebe "__main__"
+@app.route('/tasks', methods=['POST'])
+def create_task():
+    global task_id_control
+    # global vai permitir que a variável criada fora do escopo seja reconhecida.
+    data = request.get_json()
+    # request: vai ser utilizado para recuperar as informações que precisam ser passadas.
+    # get_json(): vai recuperar o que o cliente enviou.
+    new_task = Task(id=task_id_control, title=data['title'], description=data.get("description", "")) # Foi definido um valor padrão de string vazia caso o usuário não passe a descrição.
+    task_id_control += 1
+    tasks.append(new_task)
+    print(tasks)
+    return jsonify({"message": "Nova tarefa criada com sucesso!"})
+    # vai retornar a mensagem no formato json, graças ao jsonify.
+
 if __name__ == "__main__":
-    # Para executar:
-    # Esse modo de execução é usado somente durante o desenvolvimento.
     app.run(debug=True)
-    # debug -> vai permitir visualizar informações que nos ajudarão a entender o que está acontecendo no servidor web.
