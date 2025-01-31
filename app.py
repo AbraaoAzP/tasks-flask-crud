@@ -52,6 +52,7 @@ def update_task(task_id):
         # Verificação do id
         if t.id == task_id:
             task = t
+            break
 
     if task == None:
         return jsonify({"message": "Não foi possível encontrar a atividade."}), 404
@@ -63,6 +64,22 @@ def update_task(task_id):
     task.completed = data['completed']
 
     return jsonify({"message": "Tarefa atualizada com sucesso!"})
+
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    task = None
+    # Não remover durante a iteração pois vai alterar o tamanho da lista, podendo resultar em erros.
+    for t in tasks:
+        if t.id == task_id:
+            task = t
+            # Dica de performance: utilizarmos o Break ao procurarmos algo em uma lista, pois assim que for encontrado, não é mais necessário gastar tempo com o processamento dos demais itens.
+            break
+
+    if not task:
+        return jsonify({"message": "Não foi possível encontrar a atividade."}), 404
+
+    tasks.remove(task)
+    return jsonify({"message": "Tarefa deletada com sucesso!"})
 
 if __name__ == "__main__":
     app.run(debug=True)
